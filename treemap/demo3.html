@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../util/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../util/d3.js"></script>
+</head>
+<body>
+<div id="chart" style="position: absolute;left: 200px;top:200px">
+
+</div>
+</body>
+<script type="text/javascript">
+    var NameSpace=window.NameSpace||{
+                width:1000,
+                height:600,
+                _readJson:function(){
+                    var _this=this;
+                    d3.json('citygdp.json',function(error,date){
+                       _this.data=date;
+                       _this._drawChart();
+                    })
+                },
+                _drawChart:function(){
+                    var treemap=d3.layout.treemap()
+                            .size([this.width,this.height])
+                            .value(function(d){return d.gdp});
+                    var s=treemap.nodes(this.data);
+                    svg=d3.select('#chart').append('svg')
+                            .attr('width',this.width)
+                            .attr('height',this.height);
+                    var color = d3.scale.category10();
+                    var nodes=svg.selectAll('nodes')
+                            .data(s.filter(function(d){
+                                return !d.children;
+                            }))
+                            .enter()
+                            .append('rect')
+                            .attr('width',function(d){
+                                return d.dx-3;
+                            })
+                            .attr('height',function(d){
+                                return d.dy-3;
+                            })
+                            .attr('x',function(d){
+                                return d.x;
+                            })
+                            .attr('y',function(d){
+                                return d.y
+                            })
+                            .attr('fill',function(d,i){
+                                if(d.children==null){
+                                    return color(d.parent.name);
+                                }
+                            });
+                       svg.selectAll('txt')
+                               .data(s.filter(function(d){
+                                   return !d.children;
+                               }))
+                               .enter()
+                            .append('text')
+                                    .attr('x',function(d){
+                                        return d.x;
+                                    })
+                                    .attr('y',function(d){
+                                        return d.y
+                                    })
+                                    .attr('dx','0')
+                                    .attr('dy','18px')
+                                    .text(function(d){return d.name+":"+ d.gdp})
+                }
+            };
+    NameSpace._readJson();
+</script>
+</html>

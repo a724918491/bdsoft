@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../util/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../util/d3.js"></script>
+</head>
+<body>
+<div id="chart" style="width:1280px;height: 600px;margin:200px auto">
+
+</div>
+<script type="text/javascript">
+    var zhNameSpace=window.zhNameSpace||{
+                 width:1280,
+                 height:600,
+                 position:{top:0,bottom:0,left:0,right:0},
+                 _getCsv:function(){
+                     var _this=this;
+                    d3.csv('w_bmzqlv.csv',function(d){
+                        return {
+                           bmjc: d.bmjc,
+                           lzs:+d.lzs,
+                           zqs:+d.zqs,
+                           rate:+d.rate,
+                           year:+d.year
+                        }
+                    },function(errpr,data){
+                        var rows= $.grep(data,function(d){return d.year==2016});
+                        _this._drawChart(rows)
+                    })
+                 },
+                 _drawChart:function(rows){
+                         var maxy=d3.max(rows,function(d){return d.zqs});
+                         var scale=d3.scale.linear()
+                                  .domain([0,maxy])
+                                  .range([0,this.height]);
+                 }
+            };
+    zhNameSpace._getCsv()
+</script>
+</body>
+</html>

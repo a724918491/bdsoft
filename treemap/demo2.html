@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../util/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../util/d3.js"></script>
+    <style type="text/css">
+        .nodes{
+            position:absolute;
+        }
+        #chart{
+            position: absolute;
+            top: 200px;
+            left: 300px;
+        }
+    </style>
+</head>
+<body>
+<div id="chart">
+
+</div>
+<div id="switchpane">
+    <div id='mjdiv' class="switchdiv" style="position:absolute;top:1px;left:0px" onclick="NameSpace.switchRate(0)" ><span class="switchlabel">面积</span></div>
+    <div id='rkdiv' class="switchdiv" style="position:absolute;top:1px;left:84px" onclick="NameSpace.switchRate(1)" ><span class="switchlabel">人口</span></div>
+    <div id='gdpdiv' class="switchdiv" style="position:absolute;top:1px;left:167px" onclick="NameSpace.switchRate(2)" ><span class="switchlabel">GDP</span></div>
+</div>
+</body>
+<script type="text/javascript">
+    var NameSpace = window.NameSpace || {
+                width: 530,
+                height: 266,
+                color: d3.scale.linear()
+                        .range(["#000893", "#28FFD9"])
+                        .interpolate(d3.interpolateHsl),
+                selectArr: ['mj', 'rk', 'gdp'],
+                node: null,
+                switchRate: function (_idx) {
+                    this.drawSmallchart(this._odatas, 'name', 'ajsl', this.selectArr[_idx]);
+                },
+                _start: function () {
+                    var _this = this;
+                    d3.csv('dp_main_w_map.csv',
+                            function (d) {
+                                return {
+                                    zone: d.zone,
+                                    name: d.name,
+                                    rjzfl: +d.rjzfl,
+                                    ajsl: +d.ajsl,
+                                    ajje: +d.ajje,
+                                    fyajs: +d.fyajs,
+                                    zfrys: +d.zfrys,
+                                    mj: +d.mj,
+                                    type: d.type,
+                                    rk: +d.rk,
+                                    gdp: +d.gdp,
+                                    year: +d.year
+                                };
+                            },
+                            function (error, rows) {
+                                _this._odatas = $.grep(rows, function (d) {
+                                    return d.year == 2016
+                                });
+                                _this.drawSmallchart(_this._odatas, 'name', 'ajsl', 'gdp')
+                            }
+                    );
+                    this.svg = d3.select('#chart')
+                            .append('div')
+                            .attr('width', _this.width)
+                            .attr('height', _this.height);
+                },
+                drawSmallchart: function (arr, key, col, colmj) {
+                    var _this=this;
+                    var root = {
+                        name: "",
+                        mj: 0,
+                        cnt: 0,
+                        rate: 0,
+                        children: []
+                    };
+
+                    arr.forEach(function (row) {
+                        var child = {
+                            name: row[key],
+                            mj: row[colmj],
+                            cnt: row[col],
+                            rate: (col == 'rjzfl') ? row[col] : (row[colmj] == 0 ? 0 : (row[col] / row[colmj])),
+                            children: []
+                        };
+
+                        if (root.children == null) {
+                            root.children = [child];
+                        }
+                        else {
+                            root.children.push(child);
+                        }
+
+                        root.cnt += row[col];
+                        root.mj += row[colmj];
+                        root.rate = (col == 'rjzfl') ? root.cnt : (root.mj == 0 ? 0 : root.cnt / root.mj);
+                    });
+                    var rc = root.children;
+                    rc.sort(_this.sortcolumn('rate', "desc"));
+                    this._drawchart(root);
+                },
+                _drawchart: function (row) {
+                    d3.selectAll('.text').remove();
+                    var _this = this;
+                    var treemap = d3.layout.treemap()
+                            .size([_this.width, _this.height])
+                            .sticky(true)
+                            .value(function (d) {
+                                return Math.sqrt(d['rate'])
+                            });
+                    var s = treemap.nodes(row);
+                    var color2 = this.color.domain([0, row.children.length]);
+                    if (this.node == null) {
+                        this.node = this.svg.selectAll('.nodes')
+                                .data(s)
+                                .enter()
+                                .append('div')
+                                .call(position)
+                                .attr('class', 'nodes')
+                                .style('background', function (d, i) {
+                                    return color2(i);
+                                })
+                                .style("opacity", function (d) {
+                                    return d.depth == 0 ? 0 : 0.7;
+                                });
+                    }
+                    else {
+                        this.node.data(s)
+                                .transition()
+                                .duration(1500)
+                                .call(position)
+                                .attr('class', 'nodes')
+                                .style('background', function (d, i) {
+                                    return color2(i);
+                                })
+                                .style("opacity", function (d) {
+                                    return d.depth == 0 ? 0 : 0.7;
+                                });
+                    }
+
+                    this.node.append('div')
+                            .attr('class', 'text')
+                            .html(function (d) {
+                                return d.name + "" + d.rate.toFixed(2);
+                            });
+
+                    function position() {
+                        this.style("left", function (d) {
+                            return d.x + "px";
+                        })
+                                .style("top", function (d) {
+                                    return d.y + "px";
+                                })
+                                .style("width", function (d) {
+                                    return Math.max(0, d.dx - 2) + "px";
+                                })
+                                .style("height", function (d) {
+                                    return Math.max(0, d.dy - 2) + "px";
+                                });
+                    }
+                },
+                sortcolumn:function(col,dir){
+                    var sgn = (dir == "desc") ? -1 : 1;
+                    return function(a, b) {
+                        var aval = eval("a." + col);
+                        var bval = eval("b." + col);
+                        if (aval > bval) {
+                            return sgn
+                        } else {
+                            if (aval < bval) {
+                                return -1 * sgn
+                            }
+                        }
+                        return 0
+                    }
+                }
+            };
+    NameSpace._start();
+</script>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<script type="text/javascript" src="../util/d3.js"></script>
+<body>
+<div id="chart" style="width:500px;height: 500px">
+    <svg width="500" height="500"></svg>
+</div>
+<script type="text/javascript">
+    var NameSpace=window.NameSpace||{
+                length:8,
+                _drawChart:function(){
+                    var _this=this;
+                    var per=2*Math.PI/this.length;
+                    var data=d3.range(this.length).map(function(i){
+                        return{
+                            innerRadius:45+15*(i+1),
+                            startAngle:per*i,
+                            endAngle:per*(i+1)
+                        }
+                    });
+                    var arc=d3.svg.arc();
+                    var color=d3.scale.category10();
+                    d3.select('#chart').select('svg')
+                            .selectAll('path')
+                            .data(data)
+                            .enter()
+                            .append('path')
+                            .attr('d',function(d){
+                                console.log(d);
+                                return arc(d);
+                            })
+                            .attr('transform','translate(200,200)')
+                            .attr('fill',function(d,i){
+                                return color(i)
+                            })
+                }
+            };
+    NameSpace._drawChart();
+</script>
+</body>
+</html>

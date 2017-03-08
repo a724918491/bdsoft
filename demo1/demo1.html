@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>d3线性比例尺</title>
+    <script type="text/javascript" src="../util/d3.js"></script>
+</head>
+<body>
+<h1 style="font-size:50px;margin-left: 100px">线性比例尺</h1>
+<div id="linear">
+    <div id="picture" style="margin-left: 200px;float: left">
+        <img src="linear.jpg" alt=""/>
+        <p style="font-size:30px;font-weight:bold"> var scale= d3.scale.linear().domain([0,50]).range([0,500])</p>
+    </div>
+    <div id="scaleApi" style="float: left;margin-left:100px;font-size:25px;width:800px">
+        <p>一.<span style="color:red">linear(x)</span>:在定义域中的X，返回值域对应的值
+        <br>scale(10)=100
+        </p>
+        <p>二.<span style="color:red">scale.invert(y)</span>:为值域中的Y返回定义域中的X
+            <br>scale.invert(100)=10
+        </p>
+        <p>三.<span style="color:red">scale.domain(arr)</span>:为比例尺设置定义域
+            <br>
+            <img src="dataset.png" alt=""/>
+            <p><span style="color:red">d3.max(arr):</span>输出数组中的最大值
+            <p><span style="color:red">d3.min(arr):</span>输出数组中的最小值
+           </p>
+        </p>
+        <p>四.<span style="color:red">scale.range(arr)</span>:为比例尺设置值域
+        </p>
+        <p>五.<span style="color:red">scale.rangeRound(arr)</span>:为比例尺设置值域（且值是四舍五入）
+        </p>
+        <p>六.<span style="color:red">scale.clamp(boolean)</span>:比例尺是否闭合，设置成true为闭合状态
+        </p>
+    </div>
+</div>
+<div id="mainarea"></div>
+</body>
+<script type="text/javascript">
+    var scale= d3.scale.linear()
+            .domain([0,50])
+            .range([0,500]);
+    console.log(scale(10));
+    console.log(scale.invert(100));
+
+    var dataset=[20,30,40,50,60,100];
+    var dataset2=[{value:20},{value:30},{value:40},{value:50},{value:20},{value:20}];
+    var max=d3.max(dataset);
+    var max2=d3.max(dataset2,function(d){return d.value});
+    console.log(max,max2);
+
+   var dataset3=[1.02,2.6,3.1,2.03];
+    var scale2= d3.scale.linear()
+            .domain([0,d3.max(dataset3)])
+            .rangeRound([0,100]);
+    console.log(scale2(2));
+
+    var scale3= d3.scale.linear()
+            .domain([0,10])
+            .clamp(true)
+            .rangeRound([0,100]);
+
+    console.log(scale3(11))
+</script>
+</html>

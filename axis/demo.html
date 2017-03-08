@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>轴</title>
+    <script type="text/javascript" src="../util/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../util/d3.js"></script>
+    <style type="text/css">
+        .x path,.x line{
+            stroke:#000;
+            fill:none;
+            stroke-width:1;
+        }
+        .y path,.y line{
+            stroke:#000;
+            fill:none;
+            stroke-width:1;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart" style="width:800px;height: 500px;padding-left: 200px">
+        <div>
+            <h1>D3的轴组件会自动展示比例尺参考线，因此只需要专注于展示数据，而轴组件会处理绘制坐标轴和刻度标记繁琐的任务</h1>
+            <p>轴组件要搭配这D3的量化比例尺，时间比例尺，序数比例尺</p>
+        </div>
+        <svg width="500" height="500">
+        </svg>
+        <div>
+            <h1>一.创建一个轴</h1>
+            <p style="font-size: 20px">1.创建比例尺  var linear=d3.scale.linear()
+                <br>
+               2.创建轴  var axis=d3.svg.axis().scale(linear)
+                <br>
+               3.在SVG上创建  g .call(axis)
+            </p>
+        </div>
+        <div>
+            <h1>二.axis.scale()</h1>
+            <p style="font-size:20px">为坐标轴指定比例尺</p>
+        </div>
+        <div>
+            <h1>三.axis.orient()</h1>
+            <p style="font-size:20px">指定轴方位为参数的值，值为'top','bottom','left','right'</p>
+        </div>
+        <div>
+            <h1>四.axis.ticks()</h1>
+            <p style="font-size:20px">指定刻度大约为参数值，默认为10</p>
+        </div>
+            <div>
+                <h1>五.axis.tickValues()</h1>
+                <p style="font-size:20px">指定刻度为数组的值优先级大于ticks</p>
+            </div>
+         <div>
+            <h1>六.axis.tickSize(inner,outer)</h1>
+            <p style="font-size:20px">指定刻度为数组的值优先级大于ticks</p>
+        </div>
+        <div>
+            <h1>七.axis.tickPadding()</h1>
+            <p style="font-size:20px">指定刻度与刻度值之间的距离</p>
+        </div>
+        <div>
+            <h1>八.axis.tickFormat()</h1>
+            <p style="font-size:20px">指定刻度的格式</p>
+        </div>
+    </div>
+<script type="text/javascript">
+         var NameSpace=window.Namespace||{
+                     width:400,
+                     height:500,
+                     _drawX:function(){
+                         var arr=['A','B','C','D','E','F'];
+                         var ordinal=d3.scale.ordinal()
+                                 .domain(arr)
+                                 .rangePoints([0,this.width]);
+
+                         var Xaxis=d3.svg.axis()
+                                 .scale(ordinal)
+                                 .tickSize(10,2)
+                                 .orient('bottom');
+
+                         d3.select('#chart').select('svg')
+                                 .append('g')
+                                 .attr('class','x')
+                                 .attr('transform','translate(50,400)')
+                                 .call(Xaxis)
+                     },
+                     _drawY:function(){
+                         var linear=d3.scale.linear()
+                                 .domain([0,10])
+                                 .range([390,0]);
+
+                         var Yaxis=d3.svg.axis()
+                                 .scale(linear)
+                                 .ticks(5)
+                                 .orient('left');
+
+                         d3.select('#chart').select('svg')
+                                 .append('g')
+                                 .attr('class','y')
+                                 .attr('transform','translate(50,10)')
+                                 .call(Yaxis)
+                     }
+                 };
+         NameSpace._drawX();
+         NameSpace._drawY();
+</script>
+</body>
+</html>

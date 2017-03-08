@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../util/d3.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+    var a = d3.rgb(255,0,0);    //红色
+    var b = d3.rgb(0,255,0);    //绿色
+
+    var compute = d3.interpolate(a,b);
+    console.log(compute(.5))
+</script>
+</body>
+</html>

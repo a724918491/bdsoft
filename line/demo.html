@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <script type="text/javascript" src="../util/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../util/d3.js"></script>
+</head>
+<body>
+<div id="node" style="position:absolute;width: 100%">
+  <div style="width: 50%;float: left;position: relative;padding-left: 200px;box-sizing:border-box">
+      <div id="chart" style="width: 350px;height: 350px">
+          <svg width="100%" height="100%"> </svg>
+      </div>
+      <div> <h1>1.d3.svg.line</h1>
+          <p style="font-size: 25px">线生成器</p>
+      </div>
+      <div> <h1>2.line(data)</h1>
+          <p style="font-size: 25px">指定数据，返回相应的路径数据</p>
+          <button id="linebuton" onclick="NameSpace._drawLeft.linebuton()" style="width:100px;height: 20px;cursor: pointer"></button>
+          <p>[[100,100],[150,150],[200,100],[250,150],[300,100],[350,150]]</p>
+          <p id="lineH"></p>
+      </div>
+      <div> <h1>3.line.x()和line.y()</h1>
+          <p style="font-size: 25px">json=[{x:100,y:100},{x:150,y:150},{x:200,y:100},{x:250,y:150},{x:300,y:100},{x:350,y:150}]</p>
+          <p>line(json)
+              .line.x(function(d){return d.x})
+              .line.y(function(d){return d.y})
+          </p>
+      </div>
+      <div> <h1>4.line.tension</h1>
+          <p style="font-size: 25px">设置张力值，张力值必须是常数，范围:[0,1]</p>
+          <button style="cursor: pointer" onclick="NameSpace._drawLeft.Otension(0)">tension:0</button>
+          <button style="cursor: pointer" onclick="NameSpace._drawLeft.Otension(1)">tension:1</button>
+      </div>
+      <div> <h1>5.line.defined()</h1>
+          <p style="font-size: 25px">这个方法可以确定是否使用当前数据值</p>
+      </div>
+  </div>
+    <div style="width: 50%;float: left">
+        <div id="charts" style="width: 350px;height: 350px">
+            <svg width="100%" height="100%"> </svg>
+        </div>
+        <div> <h1>1.d3.svg.line.radial()</h1>
+            <p style="font-size: 25px">径像线生成器</p>
+        </div>
+        <div> <h1>2.line.radius()</h1>
+            <p style="font-size: 25px">返回半径访问器，或者指定半径访问器为参数radius</p>
+        </div>
+        <div> <h1>3.line.angle()</h1>
+            <p style="font-size: 25px">返回角度访问器，或者指定角度访问器为参数angle</p>
+        </div>
+        <div> <h1>4.line.interpolate()</h1>
+            <p style="font-size: 25px">设置径向线生成器的差值模式</p>
+            <button style="cursor: pointer" onclick="NameSpace._drawRight.interpolate()">cardinal</button>
+        </div>
+        <div> <h1>5.line.tension()</h1>
+            <p style="font-size: 25px">设置径向线生成器的张力</p>
+        </div>
+        <div> <h1>6.line.difined()</h1>
+            <p style="font-size: 25px">设置数据的访问方式</p>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+     var NameSpace=window.NameSpace||{
+               _drawLeft:{
+                   array:[[100,100],[150,150],[200,100],[250,150],[300,100],[350,150]],
+                   tension:1,
+                   svg:d3.select('#chart').select('svg'),
+                   _drawChart:function(){
+                       var _this=this;
+                       this.line=d3.svg.line()
+                               .interpolate('cardinal')
+                               .tension(this.tension);
+                       _this.svg.append('path')
+                               .style({
+                                   'stroke':'steelblue',
+                                   'stroke-width':5,
+                                   'fill-opacity':0
+                               })
+                               .attr({
+                                   "d":function(){return _this.line(_this.array)},
+                                   'transform':'translate(0,0)'
+                               })
+                   },
+                   linebuton:function(){
+                       $('#lineH').html(this.line(this.array))
+                   },
+                   Otension:function(idx){
+                       $('#chart').find('svg').empty();
+                       this.tension=idx;
+                       this._drawChart();
+                   }
+               },
+               _drawRight:{
+                   svg:d3.select('#charts').select('svg'),
+                   per:2*Math.PI/4,
+                   line:d3.svg.line.radial(),
+                   _drawChart:function(){
+                       var arr=[{r:100,angle:0},{r:100,angle:this.per*1},{r:100,angle:this.per*2},{r:100,angle:this.per*3},{r:100,angle:this.per*4}];
+                       this.line.radius(function(d){return d.r});
+                       this.line.angle(function(d){return d.angle});
+                       this.svg.append('path')
+                               .attr('d',this.line(arr))
+                               .attr('transform','translate(200,200)')
+                               .attr({
+                                   'fill-opacity':0,
+                                   'stroke':'steelblue',
+                                   'stroke-width':3
+                               })
+                   },
+                   interpolate:function(){
+                       $('#charts').find('svg').empty();
+                       this.line=d3.svg.line.radial().interpolate('cardinal');
+                       this._drawChart();
+                   }
+               }
+             };
+    NameSpace._drawLeft._drawChart();
+    NameSpace._drawRight._drawChart();
+</script>
+</body>
+</html>
